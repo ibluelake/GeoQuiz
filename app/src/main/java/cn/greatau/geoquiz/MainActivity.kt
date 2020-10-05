@@ -11,7 +11,7 @@ import androidx.lifecycle.observe
 import kotlinx.android.synthetic.main.activity_main.*
 
 private const val TAG = "MainActivity"
-private const val KEY_INDEX = "index"
+private const val USER_SCORE = "user_score"
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,17 +26,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val currentIndex = savedInstanceState?.getInt(KEY_INDEX, 0)?: 0
-        quizViewModel.currentIndex = currentIndex
-
         //user select TRUE button, then check the user answer is right or wrong.
         true_button.setOnClickListener{
-            showAnswer(true)
+            quizViewModel.checkAnswer(true)
+            showAnswer()
         }
 
         //user select FALSE button, then check the user answer is right or wrong.
         false_button.setOnClickListener{
-            showAnswer(false)
+            quizViewModel.checkAnswer(false)
+            showAnswer()
         }
 
         /*
@@ -54,33 +53,27 @@ class MainActivity : AppCompatActivity() {
             updateQuestion()
         }
 
-        quizViewModel.userQAs.observe(this) {it ->
-            var vmstring =
-            question_answer.text = (it.last().isUserAnswer) ? "You are corr" :"Answer"
-
+        quizViewModel.userqa.observe(this) {
+            updateQuestion()
         }
 
         /* show the first question when app start up
             if user has input the answer, we donot call updateQuestion() to clear the question_answer
          */
-        //if (!quizViewModel.isUserAnswer) {
-            updateQuestion()
-        //}
 
     }
 
     private fun updateQuestion() {
-        val questionTextResId = quizViewModel.currentQuestionText
-        question_text.setText(questionTextResId)
-        question_answer.setText(R.string.question_answer)
+        //val questionTextResId = quizViewModel.currentQuestionText
+        question_text.setText(quizViewModel.userqa.value?.getQuestionText())
+        question_answer.setText(quizViewModel.showAnswer())
+        quizscore.text = quizViewModel.showScore()
     }
 
-    private fun showAnswer(userAnswer: Boolean) {
-        if (quizViewModel.checkAnswer(userAnswer) ) {
-            question_answer.setText(quizViewModel.getMsg(userAnswer))  //if user answer is right,
-        } else {
-            question_answer.setText(quizViewModel.getMsg(userAnswer)) //if user answer is wrong
-        }
+    private fun showAnswer() {
+        question_answer.setText(quizViewModel.showAnswer())  //判断用户输入是否正确，显示结果，如果正确显示You are correct!,
+
+        quizscore.text = quizViewModel.showScore()
     }
     /*
         show answer with Toast
@@ -98,10 +91,10 @@ class MainActivity : AppCompatActivity() {
     }
      */
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        Log.i(TAG,"onSaveInstanceState")
-        outState.putInt(KEY_INDEX, quizViewModel.currentIndex)
-    }
+//    override fun onSaveInstanceState(outState: Bundle) {
+//        super.onSaveInstanceState(outState)
+//        Log.i(TAG,"onSaveInstanceState")
+//        outState.putInt(USER_SCORE, quizViewModel.user_score.value?.toInt() ?:0)
+//    }
 
 }

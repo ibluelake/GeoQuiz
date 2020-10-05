@@ -1,82 +1,57 @@
 package cn.greatau.geoquiz
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-private const val TAG = "QuizViewModel"
-
-class QuizViewModel: ViewModel() {
-
-    var currentIndex = 0
-    init {
-        Log.d(TAG, "ViewModel instance created")
-        this.currentIndex = 0
-    }
-
+class QuizViewModel(): ViewModel() {
     private val questionBank = listOf (
-        Question(R.string.question_afriac,false),
+        Question(R.string.question_africa,false),
         Question(R.string.question_asia,true),
         Question(R.string.question_australia,true),
         Question(R.string.question_oceans,true) )
 
+    var user_score  = MutableLiveData<Int>()
 
-    val currentQuestionAnswer: Boolean
-        get() = questionBank[currentIndex].answer
+    var userqa = MutableLiveData<UserQA>()
 
-    val currentQuestionText: Int
-        get() = questionBank[currentIndex].textResId
+    init {
+        user_score.value = 0
+        val question = Question(R.string.question_africa,false)
 
-    var userQAs = MutableLiveData<MutableList<UserQA>>()
-        //mutableListOf<UserQA>()
-
-    var isUserAnswer: Boolean = false
-
-
-    fun checkAnswer(userAnswer: Boolean): Boolean {
-        Log.d(TAG, "checkAnswer($userAnswer)")
-        updateUserQA(userAnswer)
-
-//      Log.d(TAG, "userQAs:${userQAs.get(currentIndex).answer}")
-        return userQAs.value!!.last().getUserResult()
+        userqa.value = UserQA(question,UserInput.NOANSWER)
     }
 
-    fun updateUserQA(userAnswer: Boolean) {
-
-        userQAs.value?.last()?.isUserAnswer = true
-        userQAs.value?.last()?.useranswer = userAnswer
-
+    fun  checkAnswer(userinput:Boolean):Boolean {
+        updateQA(userinput)
+        return userqa.value!!.question.checkAnswer(userinput)
     }
-    fun addUserQA(index: Int,userAnswer: Boolean = false, isUserAnswer: Boolean) {
-        val newQA = UserQA(questionBank[index],userAnswer,isUserAnswer)
-
-        userQAs.value?.add(newQA)
-        //userQAs.postValue(userQAs.value.add(newQA))
+    fun showAnswer():String {
+        return userqa.value!!.getQuestionResult()
     }
 
-    fun getMsg(userAnswer: Boolean): Int {
-        if (userAnswer == currentQuestionAnswer) {
-            return R.string.correct_msg
-        } else {
-            return R.string.incorrect_msg
+    fun showScore():String {
+        var score = MyApplication.context.getString(R.string.your_score)
+        score = score + user_score.value.toString()
+        return score
+    }
+
+    fun updateQA(userinput: Boolean) {
+        userqa.value!!.setQuestionResult(userinput)
+        if (userqa.value!!.checkAnswer(userinput)) {
+            user_score.value = user_score.value!! + 1
         }
     }
-    fun showAllWrongUserQA() {
 
-    }
     fun moveToNext() {
-        currentIndex = (currentIndex + 1) % questionBank.size
-        addUserQA(index =currentIndex,isUserAnswer= false)
+
     }
 
     fun moveToPrevious() {
-        currentIndex = (currentIndex + questionBank.size - 1) % questionBank.size
-        addUserQA(index =currentIndex,isUserAnswer= false)
+
     }
 
 
-    override fun onCleared() {
-        super.onCleared()
-        Log.d(TAG,"ViewModel instance about to be destroyed")
-    }
+
+
+
 }
