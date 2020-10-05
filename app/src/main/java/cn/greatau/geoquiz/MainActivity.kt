@@ -29,13 +29,13 @@ class MainActivity : AppCompatActivity() {
         //user select TRUE button, then check the user answer is right or wrong.
         true_button.setOnClickListener{
             quizViewModel.checkAnswer(true)
-            showAnswer()
+            updateQuestion()
         }
 
         //user select FALSE button, then check the user answer is right or wrong.
         false_button.setOnClickListener{
             quizViewModel.checkAnswer(false)
-            showAnswer()
+            updateQuestion()
         }
 
         /*
@@ -53,7 +53,7 @@ class MainActivity : AppCompatActivity() {
             updateQuestion()
         }
 
-        quizViewModel.userqa.observe(this) {
+        quizViewModel.userquiz.observe(this) {
             updateQuestion()
         }
 
@@ -65,16 +65,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateQuestion() {
         //val questionTextResId = quizViewModel.currentQuestionText
-        question_text.setText(quizViewModel.userqa.value?.getQuestionText())
-        question_answer.setText(quizViewModel.showAnswer())
+        question_text.text = quizViewModel.getCurrentQuestion().getQuestionText()
+        //question_text.setText(quizViewModel.userqa.value?.getQuestionText())
+        question_answer.text = quizViewModel.getCurrentQuestion().getQuestionResult()
         quizscore.text = quizViewModel.showScore()
     }
 
-    private fun showAnswer() {
-        question_answer.setText(quizViewModel.showAnswer())  //判断用户输入是否正确，显示结果，如果正确显示You are correct!,
-
-        quizscore.text = quizViewModel.showScore()
-    }
     /*
         show answer with Toast
      */

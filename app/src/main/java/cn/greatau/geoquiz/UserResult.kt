@@ -5,20 +5,20 @@ package cn.greatau.geoquiz
  */
 data class UserResult(var userinput: UserInput = UserInput.NOANSWER) {
 
-    private var userresult: String = "Answer"
+    private var _userResult: String = "Answer"
 
     fun getUserResult(): String
     {
-        return userresult
+        return _userResult
     }
 
     fun setUserResultText(ua:Boolean): String
     {
         when(ua) {
-            true -> userresult = "You are correct!"
-            false -> userresult = "You are incorrect!"
+            true -> _userResult = "You are correct!"
+            false -> _userResult = "You are incorrect!"
         }
-        return userresult
+        return _userResult
     }
 
 
